@@ -1,0 +1,54 @@
+다시 보기
+
+VMnet0 - Brdige ==  가상 PC와 HOST 전부 각각 공인 IP를 가지도록 생성
+VMnet1 - host_only ==  가상 환경 끼리의 연결을 위해서
+VMnet8 - NAT == 실제 HOST PC을 통해 가상 머신과 연결 (사설 IP 활용)
+
+
+
+++ NAT 추가
+DHCP에서 사설 IP를 할당 받듯이 가상 IP를 받아 활용
+마찬가지로 전송시에는 NAT에서 공인ip로 변경 후 전송
+수신시 port를 활용해 수신
+
+port forwarding
+외부에서 먼저 접근시 NAT 서버에 관련 정보가 없을 수 있기 때문에,
+사설 ip 쪽에서 port forawarding을 진행 해 둬야 한다.
+
+
+프로토콜
+개념적 약속, 컴퓨터 상호간 데이터 송수신의 필요 통신규약
+int socket(int domain, int type, int protocol);
+
+domain == 프로토콜 종류 PF_INET==ipv4 , PF_INET6==ipv6
+type == 소켓 타입, 연결 지향형 소켓 (TCP) / 비연결 지향형 소켓 (UDP)
+protocol == 프로토콜 정보 전달 (그러나 보통 TCP, UDP 중 하나로 사용 됨으로 그냥 0으로 두면 자동지정)
+
+
+TCP 소켓 / UDP 소켓
+SOCK_STREAM / SOCK DGRAM
+연결 지향형 소켓 / 비 연결지향형 소켓
+신뢰성 / 신속성
+순차 전송 / 순서 없음 
+
+
+최종 사용 소켓
+int tcp_socket=socket(PF_INET, SOCK_STRAM, IPPROTO_TCP);
+tcp / ipv4 
+
+int udp_socket=socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP);
+udp / ipv4
+
+++ accept 라는 함수를 통해 개별 client용 소켓을 연결시켜 쌍방소통
+결국 최초에 생성하는 server 소켓은, listen 도중 연결 요청이 오면 client 생성하는 역할을 하게된다.
+
+
+Blocked / Non Blocked 방식 읽기
+전자 == 1바이트 씩 읽다가 데이터가 없는 경우 대기
+후자 == 1바이트 씩 읽고 데이터가 없는 경우 바로 return
+
+일반 파일 : blocked / 느린 파일 : non-blocked
+소켓 파일의 경우 non-blocked로 읽어야 함
+
+
+

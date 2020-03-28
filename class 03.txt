@@ -43,12 +43,33 @@ udp / ipv4
 결국 최초에 생성하는 server 소켓은, listen 도중 연결 요청이 오면 client 생성하는 역할을 하게된다.
 
 
-Blocked / Non Blocked 방식 읽기
+Blocking / Non Blocking 방식 읽기
 전자 == 1바이트 씩 읽다가 데이터가 없는 경우 대기
 후자 == 1바이트 씩 읽고 데이터가 없는 경우 바로 return
 
-일반 파일 : blocked / 느린 파일 : non-blocked
-소켓 파일의 경우 non-blocked로 읽어야 함
+일반적으로 bocking mode로 열림
+둘의 궁극적 차이는 읽을 데이터가 없을 때, return의 유무 차이
 
 
+
+Non-blocking mod
+읽을 데이터가 도착하지 않은 상황 과 end of file 상황에 따라 차이가 있는데
+
+도착하지 않은 경우는 -1을 리턴
+end of file는 0을 리턴
+
+
+
+++ blocking mod 추가사항
+조건에 따라 return이 다름
+
+지정 바이트 수 10 바이트를 리턴 
+예외) EOF 이 포함된 경우 EOF 까지 읽은 데이터 수 리턴
+예외) end of file 밖에 없는 경우 0 리턴
+
+
+소켓 파이프 등 느린 파일의 경우 지정 데이터 보다 작은 값이 리턴 될 수 있음
+경우1 == 실제 버퍼에 있는 데이터만 읽어옴
+경우2 == 읽는 데이터에 EOF가 포함된 경우 EOF 까지의 데이터 수 리턴
+경우3 == 읽을 데이터가 EOF 밖에 없는 경우 0리턴
 

@@ -1,0 +1,85 @@
+서브넷 마스크
+주소 / 24
+뒤의 24 즉 왼쪽부터 24개 비트는 공통 주소임을 지칭
+
+
+port
+소켓을 구분, 하나의 프로그램에 여러 port 할당 가능
+16bit 
+0~1023은 well known port
+4계층인 TCP 에 연동
+
+
+
+bind
+sockaddr_in 구조체로 생성된 주소 정보를 소켓에 bind
+
+bind(sd, (struct sockaddr* )8addr, sizeof(addr));
+sockaddr_in 을 모든 주소를 처리하는 sockaddr로 형변환 해줘야 함
+
+
+inet_addr
+문자열을 주소 변환을 통해 주소 구조체에 할당하는 함수
+
+inet_ntoa
+반대로 주소를 문자열로 반환
+반복 호출해도 동일 주소로 내용이 바뀜으로, 호출 뒤 바로 활용해야 함
+
+
+htons(port)
+포트 번호를 주소 구조체에 할당 전에 변형을 해줘야 함
+
+
+getsockname / getpeername
+서버와 클라이언트의 주소 얻기
+
+
+
+
+TCP 기본적 동작 순서
+
+TCP 서버 호출 순서
+
+1 socket() 소켓 생성 - 주소 구조체 완성
+2 bind () 소켓 주소할당
+3 listen() 연결 요청 대기상태
+4 accept() 연결허용
+5 read()/write() 데이터 송수신
+6 close() 연결종료
+
+
+int listen(int sock, int backlog);
+sock은 listen 시킬 대상 소켓
+
+backlog는 대기 queue의 크기정보 전달
+listen 소켓에 여러 클라이언트가 연결 요청 시, 대기열의 크기를 의미
+
+함수 결과로 성 시 생성된 소켓의 파일 디스크립터 반환, 실패 시 -1 반환
+이렇게 생성된 소켓으로 통신을 진행
+
+
+
+TCP 클라이언트 호출 순서
+1 socket()
+2 connect() 연결 요청 - 서버 쪽에서 accept가 끝난 후에 다음 단계로 진행
+3 read()/write()
+4 close() 연결종료
+
+int connect(int sock, const struct sockaddr* servaddr, socklen_t addrlen);
+성공 시 생성된 소켓 파일 디스크립터 반환, 실패 시 -1 반환
+이 때 connect는 인자로 넣은 소켓이 반환됨
+
+
+
+Iterative 서버 구현
+
+listen 부터, close까지 처리한뒤 다시 listen 과정으로 반복해 backlog 순서에 따라 반복처리
+단, 둘 이상의 클라이언트 처리는 불가능, 즉 생성 처리를 반복
+
+
+
+
+
+
+
+

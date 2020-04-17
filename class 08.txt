@@ -1,0 +1,33 @@
+UDP 프로그래밍
+
+특징
+SEQ, ACK 없음 / Flow control 없음
+Connection 없음
+데이터 복구 없음
+
+장
+구조 단순, 속도 빠름, 동시 여러 host 통신
+
+
+클라이언트 측에서 send to 시 자동으로 본인 ip와 포트번호 전송
+서버는 명시적으로 bind를 통해 소켓에 할당해함
+
+
+udp 소켓은 다수의 대상과 통신 할 수 있음으로
+소켓과 연결된 대상의 ip인 peer 주소가 계속 바뀔수 있다.
+( tcp의 경우는 고정 )
+
+
+클라이언트의 
+sendto(ints, void* msg, size_t len, int flags, \\ struct sockaddr *to, socklen_t tolen);
+에서 struct sockaddr *to 가 보내는 대상의 주소
+
+서버의 recvfrom의 경우 여러 주소로 부터 받아오기 때문에 
+주소를 담을 구조체를 함수로 파라미터에 넣음
+
+
+UDP의 connect
+같은 대상에게 데이터를 반복 전송하는 경우 고정시켜 편하게 전송하도록 함
+sendto recvfrom 대신 tcp 처럼 read write 활용 가능
+
+

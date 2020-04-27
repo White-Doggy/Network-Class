@@ -1,0 +1,57 @@
+정정
+blocking & none blocking
+
+소켓 파일은 기본적으로 blocking으로 열린다
+== 접근 시 읽을 내용이 없을 경우, 어떠한 데이터라도 올 때까지 대기 함
+
+
+단, 일반 blocking 파일과 다르게
+
+blocking 모드로 열린 소켓 파일은
+read 시 데이터가 없다면 대기하고, 
+만약 조금이라도 있다면 있는 내용을 전부 읽어서 반환 함 (이 부분이 차이점)
+
+즉, 데이터가 없을 때는 blocking 의 특성을 띄고
+데이터가 있는 경우는 none blocking 의 특성을 띔
+
+기본적으로 blocking 의 특성을 띄기 때문에 blocking으로 봄
+
+
+
+
+도메인 이름과 인터넷 주소(ip)
+
+도메인 이름
+ip 대신하는 서버주소 ( 보통 아는 인터넷 주소 )
+
+
+DNS 서버
+ip 변환을 해주는 서버 / 일종의 분산 데이터 베이스 시스템
+
+
+
+
+struct hostent * gethostbyname( const char * hostname );
+라이브러리 함수 / 도메인 이름 정보를 전달하면 해당 도메인 서버정보가 hostent 구조체 변수에 체워짐
+
+
+IP는 도메인 이름에 비해 상대적으로 변동이 심하고,
+따라서 프로그램 코드상 ip를 직접 입력하는 코드보다 
+고정된 도메인 이름을 통해 ip를 얻어오게 구현하면 코드를 다시 컴파일 할 필요가 없어짐
+
+hostent 내부에는 여러 변수가 있고
+h_addr_list 내부에 주소가 저장 됨
+h_addr_list는 string형의 배열로 되어있으며, 여러 타입의 주소를 저장하기 위해 string형을 사용
+
+
+
+
+ip 주소를 통해 도메인 정보 얻기
+struct hostent * gethostbyaddr( const char * addr, socklen_t_len, int family);
+ip주소를 char 타입으로 바꿔서 넣어야함 == ip 주소 이외의 다른 주소도 처리할 수 있기 때문
+똑같이 return 값은 hostent
+
+
+
+++ 중요
+함수에 매개변수로써 넣을 때 형변환에 주의 해야함

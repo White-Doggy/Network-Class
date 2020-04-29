@@ -1,0 +1,33 @@
+DNS 실습 관련
+
+Domain Name
+ip 대신하는 서버 주소 / google.com 등..
+실제 주소로 사용되지는 않고, ip 주소로 변환해 사용
+
+DNS server
+Domain Name을 ip로 변환해 주는 서버, 일종의 DB
+
+
+
+struct hostent *gethostbyname( const char *hostname );
+
+라이브러리 함수
+파라미터 == 호스트이름 : 도메인 네임 문자열
+성공시 hostent 구조체의 [주소] / 실패시 NULL 반환
+
+실제 구조체는 매우 크기 때문에 주소를 활용해 메모리를 줄임
+
+구조체 내부에 h_addr_list; 에 복수의 주소 목록이 저장됨
+
+
+h_addr_list
+실제로는 void로 저장되어야 함 == 어떤 주소가 저장될 지 모르기 때문에
+이를 어떻게 해석할 것인가에 대해서는 inet_ntoa 함수에서 선택하게됨
+
+
+
+struct hostent *gethostbyaddr((const char *addr, int len, int family);
+파라미터로 in_addr 구조체 변수의 포인터를 받고
+길이, 주소체계를 차례로 넣어줌 
+
+위와 동일하게 성공시 hostent 구조체 return, 실패시 null

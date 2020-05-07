@@ -1,0 +1,53 @@
+소켓의 옵션
+
+소켓의 레벨
+IPPROTO_TCP / IPPROTO_IP / SOL_SOCKET
+단계별로 조작을 위한 내용이 포함됨
+
+
+getsockopt(int sock, int level, int optname, void *optval, socklen_t *optlen);
+소켓 / 레벨 / 옵션이름 / 결과를 저장할 void 타입 메모리 / 기억공간의 크기를 담고있는 버퍼의 주소 
+해당 소켓에 할당된 옵션 등록정보를 가져옴
+
+
+setsockopt(int sock, int level, int optname, void *optval, socklen_t optlen);
+파라미터는 위와 유사, 
+대신 마지막 크기에 관한 정보가 주소가 아닌 일반 변수로 전달 (반환 받을 내용이 없기 때문)
+소켓에 해당 option을 지정함
+
+
+
+Time-wait
+서버 클라이언트에 관계 없이 TCP 소켓에서 연결 종료를 목적으로 four-way handshaking의 첫번째 메시지를 전달하는 호스트의 소켓은
+Time-wait 상태를 거침, 해당 상태에서는 소켓이 소멸 되지 않기 때문에 할당받은 port를 다른소켓에 할당 불가
+
+즉 해당 주소를 활용하지 못하는 상태이기 때문에 주소할당 에러가 발생함
+
+Time-wait은 four-way 중 마지막 단계의 ACK가 정상 전송되지 않는 경우를 대비하기 위해 대기하는 역할
+
+결과 : 서버, 클라이언트에 관계없이 먼저 FIN을 요청한 측이 Time-wait를 하게됨
+또한 Time-wait 상태는 연속될 수 있음 (ACK가 계속 실패시)
+
+
+이는 소켓의 REUSEADDR 옵션에 TRUE를 줌으로써 time-wait 상태의 주소 및 포트를 활용가능하게 할 수 있음
+
+
+
+
+TCP 레벨 관련 옵션
+
+
+Nagle 알고리즘
+트래픽과 전송속도 저하를 막기위해 디자인된 알고리즘
+보통 자동으로 적용되며, 의도적으로 중단 시키지 말아야한다.
+
+최초의 전송 이후 ACK를 수신할 때까지 write 버퍼를 최대한 채우고 
+이후 ACK수신 시 write 버퍼내용을 전부 전송하게 됨, 해당 동작의 반복
+
+송수신하게되는 패킷의 수가 감소함 == 네트워크 상태를 좋게함
+알고리즘을 끌 경우 == 특정 경우에 속도가 빠를 수 있다(ACK 대기 없이 송신 반복), 단 별 차이가 없다
+
+
+++
+setsockopt에 대해 TCP_NODELAY에 true를 전달함으로써 Nagle 알고리즘을 중단 할 수 있음
+

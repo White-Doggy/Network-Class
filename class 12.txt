@@ -1,7 +1,11 @@
 소켓의 옵션
 
 소켓의 레벨
-IPPROTO_TCP / IPPROTO_IP / SOL_SOCKET
+SOL_SOCKET == 일반 소켓 단계의 레벨 설정
+IPPROTO_TCP == TCP 단계 ""
+IPPROTO_IP == IP 단계 ""
+
+
 단계별로 조작을 위한 내용이 포함됨
 
 
@@ -29,7 +33,10 @@ Time-wait은 four-way 중 마지막 단계의 ACK가 정상 전송되지 않는 
 또한 Time-wait 상태는 연속될 수 있음 (ACK가 계속 실패시)
 
 
-이는 소켓의 REUSEADDR 옵션에 TRUE를 줌으로써 time-wait 상태의 주소 및 포트를 활용가능하게 할 수 있음
+이는 소켓의 SO_REUSEADDR 옵션에 TRUE를 줌으로써 time-wait 상태의 주소 및 포트를 활용가능하게 할 수 있음
+이는 close 과정 중, Time-wait의 대기시간이 길기 때문에 이러한 옵션이 존재
+
+
 
 
 
@@ -43,6 +50,12 @@ Nagle 알고리즘
 
 최초의 전송 이후 ACK를 수신할 때까지 write 버퍼를 최대한 채우고 
 이후 ACK수신 시 write 버퍼내용을 전부 전송하게 됨, 해당 동작의 반복
+++ 큰 파일의 경우 전송 세그먼트가 가득 차서 자동으로 전송하게됨 == 알고리즘 끈 상태와 동일해짐
+즉, 크기가 작은 챗팅과 같은 경우에 차이가 발생하게됨
+
+* 이러한 동작은 데이터 크기가 크지 않은 전송 대상에 대해서만 stop & wait 방식을 활용
+  전송 용량이 max packet size보다 적은 데이터에 대해 여러 단계의 헤더가 추가되는 상황은 segment의 낭비를 가져오기 때문에 이러한 조건이 발생 
+  용량이 큰 경우는 sliding window 방식을 통해 연속적으로 보냄
 
 송수신하게되는 패킷의 수가 감소함 == 네트워크 상태를 좋게함
 알고리즘을 끌 경우 == 특정 경우에 속도가 빠를 수 있다(ACK 대기 없이 송신 반복), 단 별 차이가 없다
@@ -50,4 +63,39 @@ Nagle 알고리즘
 
 ++
 setsockopt에 대해 TCP_NODELAY에 true를 전달함으로써 Nagle 알고리즘을 중단 할 수 있음
+
+
+
+SO_KEEPALIVE
+2시간동안 통신이 없을 경우, keepalive probe 전송
+소켓 운영체제 단에서 자동으로 전송
+
+ACK 수신시 -> 통보하지않음 (정상 상태)
+
+상대가 RST로 응답(기존 소켓이 아닌 새로운 소켓이 생성된 경우==해당 소켓이 close 없이 carsh되어 재실행됨) -> 연결 해제
+
+11분 15초 내에 응답 없음 -> 소켓 종료 
+
+
+
+SO_LINGER
+소켓 종료 제어
+close 호출 시 소켓을 어떻게 종료할지 제어 
+
+기본상태 -  close 호출 시 send 버퍼 내용은 보장되지만 close 호출 된 이후 바로 return
+linger 옵션을 준 경우 - send 버퍼의 남은 내용을 다 전송한 뒤에 close에 대한 결과를 return 함 
+
+linger 구조체를 별도로 생성해 전송
+구조체 내부에는 onoff와 대기 시간을 설정
+
+만약 지정한 대기 시간 내에 전송되지 않은 경우 close가 실패하는 에러 발생
+
+옵션값
+FALSE == 무시
+TRUE, nozero == 시간 만큼 대기 후 에러
+TRUE, zero == close 시 대기 없이 바로 send 버퍼 내용을 폐기처리
+
+
+
+
 
